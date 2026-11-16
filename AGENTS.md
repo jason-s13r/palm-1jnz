@@ -11,4 +11,4 @@ This is a deployment repo, not code. palm itself lives in
   Release workflow. Don't edit or replace them by hand.
 - Commit messages are conventional (`chore(release): palm X.Y.Z` comes from
   the workflow; config changes are `feat(config):` or `fix(config):`).
-- Commit messages carry no tool or session trailers.
+- Work goes straight to `main`. Commit messages carry no session references; a Co-Authored-By line is fine.
