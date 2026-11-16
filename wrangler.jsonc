@@ -1,5 +1,9 @@
 // The 1j.nz Worker, deployed by Workers Builds from the `cloudflare` branch.
 // Started from palm's wrangler.template.jsonc.
+//
+// Every resource below is named, not ID'd: the first `wrangler deploy` finds
+// or creates each one by name (automatic provisioning), and later deploys
+// reuse it. Nothing needs making by hand in the dashboard.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "palm-1jnz",
@@ -8,6 +12,23 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
+
+  // Everything palm keeps. palm creates and migrates its own tables on its
+  // first request, so there's no migration step. The admin CLI reaches it by
+  // name: pnpm palm user create jason --domain 1j.nz --db palm-1jnz --admin
+  "d1_databases": [{ "binding": "DB", "database_name": "palm-1jnz" }],
+
+  // Uploaded images and video.
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "palm-1jnz-media" }],
+
+  // Outgoing deliveries. The Worker consumes its own queue.
+  "queues": {
+    "producers": [{ "binding": "QUEUE", "queue": "palm-1jnz" }],
+    "consumers": [{ "queue": "palm-1jnz", "max_batch_size": 5, "max_retries": 5 }]
+  },
+
+  // Daily pruning of old remote posts nobody here touched, so D1 stays small.
+  "triggers": { "crons": ["17 3 * * *"] },
 
   // Until go-live (M5) the Worker answers only on workers.dev, so a deploy
   // can be checked at /_palm/version without touching 1j.nz.

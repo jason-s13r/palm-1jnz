@@ -24,19 +24,36 @@ Check a deploy at `https://palm-1jnz.jason-2ab.workers.dev/_palm/version`.
 
 ## One-time setup
 
-1. **Package access.** After palm's first release publishes
-   `@jason-s13r/palm-worker`, open the package on GitHub (palm repo →
-   Packages → palm-worker → Package settings → Manage Actions access) and add
-   this repository with the Read role.
-2. **Workers Builds.** In the Cloudflare dashboard, Workers & Pages → Create →
+1. **Release palm** (palm repo → Actions → Release) so
+   `@jason-s13r/palm-worker` carries the current code.
+2. **Package access.** Open the package on GitHub (palm repo → Packages →
+   palm-worker → Package settings → Manage Actions access) and add this
+   repository with the Read role.
+3. **Workers Builds.** In the Cloudflare dashboard, Workers & Pages → Create →
    Import a repository → `palm-1jnz`. Worker name `palm-1jnz`, production
    branch `cloudflare`, build command `pnpm install --frozen-lockfile`, deploy
    command `npx wrangler deploy`. Turn off builds for non-production branches.
-3. **Run Release** once.
+4. **Run Release** here once. The first deploy creates the D1 database
+   (`palm-1jnz`), the R2 bucket (`palm-1jnz-media`) and the queue
+   (`palm-1jnz`) from their names in `wrangler.jsonc`, and registers the
+   daily prune cron. palm makes its tables on its first request.
+5. **Check it** at `https://palm-1jnz.jason-2ab.workers.dev/_palm/version`.
 
 ## Going live (M5)
 
-Swap the `workers_dev` line in `wrangler.jsonc` for the commented routes,
-delete the zone's "redirect to jason.schwarzenberger.co.nz" Redirect Rule (palm
-does that redirect itself from `browserRedirect`), and add a WAF skip rule for
-`application/activity+json` requests.
+1. Swap the `workers_dev` line in `wrangler.jsonc` for the commented route
+   and run Release.
+2. Delete the zone's "redirect to jason.schwarzenberger.co.nz" Redirect Rule.
+   palm does that redirect itself from `browserRedirect`, for `/` and any
+   page it doesn't serve; profiles, posts and communities are its own pages.
+3. If Bot Fight Mode or a WAF rule challenges requests, add a skip rule for
+   `application/activity+json` requests, or other servers can't reach palm.
+4. Make the first account from a clone of palm (logged in with
+   `npx wrangler login`), which prints its password once:
+
+   ```sh
+   pnpm palm user create jason --domain 1j.nz --db palm-1jnz --admin
+   pnpm palm invite create --domain 1j.nz --db palm-1jnz --count 3
+   ```
+
+   Sign in to Voyager and the Mastodon app with the server `1j.nz`.
