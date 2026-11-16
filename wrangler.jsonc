@@ -30,15 +30,9 @@
   // Daily pruning of old remote posts nobody here touched, so D1 stays small.
   "triggers": { "crons": ["17 3 * * *"] },
 
-  // Until go-live (M5) the Worker answers only on workers.dev, so a deploy
-  // can be checked at /_palm/version without touching 1j.nz.
-  "workers_dev": true
-
-  // At M5, replace the line above with these routes and retire the zone's
-  // redirect rule (palm takes over the browser redirect itself):
-  //
-  // "workers_dev": false,
-  // "routes": [
-  //   { "pattern": "1j.nz/*", "zone_name": "1j.nz" }
-  // ]
+  // palm serves all of 1j.nz: federation, both client APIs, its web pages,
+  // and the browser redirect to jason.schwarzenberger.co.nz (browserRedirect
+  // in palm.config.ts), which replaces the zone's old Redirect Rule.
+  "workers_dev": false,
+  "routes": [{ "pattern": "1j.nz/*", "zone_name": "1j.nz" }]
 }
