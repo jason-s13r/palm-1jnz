@@ -1,0 +1,5 @@
+# pnpm settings (pnpm no longer reads them from package.json). esbuild and
+# workerd run their install scripts; wrangler needs both.
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
