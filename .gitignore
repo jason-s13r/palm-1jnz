@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+.dev.vars
+.DS_Store
+# The vendored palm package is committed on purpose; nothing else in vendor/.
+vendor/*
+!vendor/palm-worker.tgz
+!vendor/PALM_VERSION

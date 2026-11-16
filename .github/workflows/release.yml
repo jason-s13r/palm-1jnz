@@ -1,0 +1,108 @@
+name: Release
+
+# Deploys a palm version to 1j.nz.
+#
+# 1. Fetches @jason-s13r/palm-worker from GitHub Packages with this repo's own
+#    GITHUB_TOKEN. That works because the package grants this repository read
+#    access ("Manage Actions access" in the package's settings), so no personal
+#    token is stored anywhere.
+# 2. Vendors it as vendor/palm-worker.tgz, refreshes the lockfile, and checks
+#    that the Worker still typechecks and bundles.
+# 3. Commits that as one release commit and moves the `cloudflare` branch to
+#    it. Workers Builds deploys that branch, installing from the vendored file,
+#    so Cloudflare needs no registry access either.
+#
+# Run it with no version to take the latest palm, or name one to pin or roll
+# back. Running it again with the version already vendored redeploys as is.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "palm worker version (e.g. 0.3.1); empty for the latest"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Vendor palm and deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # the release commit and the cloudflare branch
+      packages: read # reading @jason-s13r/palm-worker
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          # Authenticates the @jason-s13r scope against GitHub Packages with
+          # NODE_AUTH_TOKEN, for the npm commands below.
+          registry-url: https://npm.pkg.github.com
+          scope: "@jason-s13r"
+
+      - name: Fetch the palm package
+        id: palm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          set -eu
+          spec="@jason-s13r/palm-worker@${REQUESTED:-latest}"
+          version=$(npm view "$spec" version)
+          out=$(mktemp -d)
+          npm pack "@jason-s13r/palm-worker@$version" --pack-destination "$out" >/dev/null
+          mkdir -p vendor
+          mv "$out"/*.tgz vendor/palm-worker.tgz
+          echo "$version" > vendor/PALM_VERSION
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # The dependency is file:./vendor/palm-worker.tgz, so only the lockfile's
+      # integrity changes between versions; package.json stays as it is.
+      - name: Install and check
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm typecheck
+          pnpm check
+
+      - name: Commit the release
+        id: commit
+        env:
+          VERSION: ${{ steps.palm.outputs.version }}
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add vendor/palm-worker.tgz vendor/PALM_VERSION pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo "palm $VERSION is already vendored; redeploying the current commit."
+          else
+            git commit -m "chore(release): palm $VERSION"
+            git push origin HEAD
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # A plain push, so the branch only moves forward: if something was pushed
+      # to `cloudflare` by hand, this fails rather than throwing it away. A push
+      # made with GITHUB_TOKEN starts no workflow, but Cloudflare's GitHub app
+      # still gets the webhook.
+      - name: Point the cloudflare branch at the release
+        env:
+          SHA: ${{ steps.commit.outputs.sha }}
+          VERSION: ${{ steps.palm.outputs.version }}
+        run: |
+          git push origin "$SHA:refs/heads/cloudflare"
+          {
+            echo "### Deploying palm $VERSION"
+            echo ""
+            echo "\`cloudflare\` now points at \`$SHA\`; Workers Builds deploys it from there."
+          } >> "$GITHUB_STEP_SUMMARY"
