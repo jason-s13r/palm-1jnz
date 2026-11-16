@@ -6,10 +6,8 @@ export default defineConfig({
   domains: [
     {
       domain: "1j.nz",
-      hosts: {
-        lemmy: "lemmy.1j.nz",
-        mastodon: "mastodon.1j.nz",
-      },
+      // Both APIs answer on 1j.nz itself; sign in to apps with "1j.nz".
+      hosts: {},
     },
   ],
   instance: {

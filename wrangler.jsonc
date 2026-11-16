@@ -18,8 +18,6 @@
   //
   // "workers_dev": false,
   // "routes": [
-  //   { "pattern": "1j.nz/*", "zone_name": "1j.nz" },
-  //   { "pattern": "lemmy.1j.nz", "custom_domain": true },
-  //   { "pattern": "mastodon.1j.nz", "custom_domain": true }
+  //   { "pattern": "1j.nz/*", "zone_name": "1j.nz" }
   // ]
 }
