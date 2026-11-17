@@ -411,8 +411,8 @@ packages:
     os: [win32]
 
   '@jason-s13r/palm-worker@file:vendor/palm-worker.tgz':
-    resolution: {integrity: sha512-uRtLsLs8/i9B/pEi0T8D0qpDXfjTFoCDDOShZPniwTUikhjl5Xfcy+jzXsUdSypWoCpLE6IUm5m/Tbpg2YD76w==, tarball: file:vendor/palm-worker.tgz}
-    version: 0.4.0
+    resolution: {integrity: sha512-j8uz61TSDCrQAwq7Lw2dQnQoPrgH0LatYu1GAjDvjeceUVV5xCyxt3wuKnrqoj5Hv2erXBmJsTHbt8+k9yF4jg==, tarball: file:vendor/palm-worker.tgz}
+    version: 0.5.0
     hasBin: true
 
   '@jridgewell/resolve-uri@3.1.3':
