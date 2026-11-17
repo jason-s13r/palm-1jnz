@@ -24,7 +24,8 @@
   // Outgoing deliveries. The Worker consumes its own queue.
   "queues": {
     "producers": [{ "binding": "QUEUE", "queue": "palm-1jnz" }],
-    "consumers": [{ "queue": "palm-1jnz", "max_batch_size": 5, "max_retries": 5 }]
+    // One message per run: each queue job then has the free plan's CPU time to itself.
+    "consumers": [{ "queue": "palm-1jnz", "max_batch_size": 1, "max_retries": 5 }]
   },
 
   // Mastodon streaming: one Durable Object holds the open connections.
