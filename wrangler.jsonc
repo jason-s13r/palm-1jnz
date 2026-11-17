@@ -27,8 +27,13 @@
     "consumers": [{ "queue": "palm-1jnz", "max_batch_size": 5, "max_retries": 5 }]
   },
 
-  // Daily pruning of old remote posts nobody here touched, so D1 stays small.
-  "triggers": { "crons": ["17 3 * * *"] },
+  // Mastodon streaming: one Durable Object holds the open connections.
+  "durable_objects": { "bindings": [{ "name": "STREAMING", "class_name": "PalmStreaming" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PalmStreaming"] }],
+
+  // Every 10 minutes: scheduled posts, moves and deletions go out. The 03:00
+  // UTC run also prunes old remote posts nobody here touched.
+  "triggers": { "crons": ["*/10 * * * *"] },
 
   // palm serves all of 1j.nz: federation, both client APIs, its web pages,
   // and the browser redirect to jason.schwarzenberger.co.nz (browserRedirect

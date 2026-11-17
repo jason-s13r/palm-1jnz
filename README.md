@@ -39,8 +39,8 @@ Check a deploy at `https://1j.nz/_palm/version`.
    `browserRedirect`, for `/` and any page it doesn't serve.
 5. **Run Release** here. The first deploy creates the D1 database
    (`palm-1jnz`), the R2 bucket (`palm-1jnz-media`) and the queue
-   (`palm-1jnz`) from their names in `wrangler.jsonc`, registers the daily
-   prune cron, and routes `1j.nz/*` to the Worker. palm makes its tables on
+   (`palm-1jnz`) from their names in `wrangler.jsonc`, registers the
+   10-minute cron and the streaming Durable Object, and routes `1j.nz/*` to the Worker. palm makes its tables on
    its first request.
 6. **Check it** at `https://1j.nz/_palm/version` and
    `https://1j.nz/.well-known/nodeinfo`.
