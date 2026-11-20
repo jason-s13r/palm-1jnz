@@ -15,6 +15,6 @@ export default defineConfig({
     description: "A small fediverse home for family and friends.",
   },
   // Where browsers go on pages palm doesn't serve, as the old redirect rule did.
-  browserRedirect: "https://jason.schwarzenberger.co.nz",
+  //browserRedirect: "https://jason.schwarzenberger.co.nz",
   registration: "invite",
 });
