@@ -87,20 +87,22 @@ jobs:
             echo "palm $VERSION is already vendored; redeploying the current commit."
           else
             git commit -m "chore(release): palm $VERSION"
-            git push origin HEAD
           fi
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      # A plain push, so the branch only moves forward: if something was pushed
-      # to `cloudflare` by hand, this fails rather than throwing it away. A push
-      # made with GITHUB_TOKEN starts no workflow, but Cloudflare's GitHub app
-      # still gets the webhook.
-      - name: Point the cloudflare branch at the release
+      # One atomic push for main and cloudflare. As two pushes, the second one
+      # sent no objects (git thought GitHub had the commit from the first) and
+      # was rejected with "missing necessary objects" when GitHub hadn't caught
+      # up yet (20 Nov 2026). Plain pushes, so both only move forward: if
+      # something was pushed to either by hand, neither moves. A push made with
+      # GITHUB_TOKEN starts no workflow, but Cloudflare's GitHub app still gets
+      # the webhook.
+      - name: Push the release and point the cloudflare branch at it
         env:
           SHA: ${{ steps.commit.outputs.sha }}
           VERSION: ${{ steps.palm.outputs.version }}
         run: |
-          git push origin "$SHA:refs/heads/cloudflare"
+          git push --atomic origin "$SHA:refs/heads/main" "$SHA:refs/heads/cloudflare"
           {
             echo "### Deploying palm $VERSION"
             echo ""
