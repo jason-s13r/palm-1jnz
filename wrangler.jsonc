@@ -10,7 +10,8 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-11-01",
   "compatibility_flags": ["nodejs_compat"],
-  "observability": { "enabled": true },
+  // Issues: set here so deploys keep it on (the dashboard toggle is reset by each deploy).
+  "observability": { "enabled": true, "issues": { "enabled": true } },
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
 
   // Everything palm keeps. palm creates and migrates its own tables on its
