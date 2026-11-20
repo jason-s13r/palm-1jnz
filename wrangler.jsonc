@@ -21,6 +21,11 @@
   // Uploaded images and video.
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "palm-1jnz-media" }],
 
+  // Media Transformations, for PeerTube uploads' thumbnails (a frame of each
+  // video). 5,000 a month are free; past that, the free plan refuses new ones
+  // rather than billing, and palm falls back to its placeholder.
+  "media": { "binding": "MEDIA_TRANSFORMS" },
+
   // Outgoing deliveries. The Worker consumes its own queue.
   "queues": {
     "producers": [{ "binding": "QUEUE", "queue": "palm-1jnz" }],
