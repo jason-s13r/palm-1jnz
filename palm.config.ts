@@ -13,6 +13,7 @@ export default defineConfig({
   instance: {
     name: "1j.nz",
     description: "A small fediverse home for family and friends.",
+    postClients: "service",
   },
   // Where browsers go on pages palm doesn't serve, as the old redirect rule did.
   //browserRedirect: "https://jason.schwarzenberger.co.nz",
